@@ -17,13 +17,11 @@ export const LoginPage = () => {
 
     const onSubmit = ( event ) => {
         event.preventDefault();
-        console.log({ email, password })
 
         dispatch( checkingAuthentication() );
     }
 
     const onGoogleSingIn = () => {
-        console.log('onGoogleSingIn')
         dispatch( startGoogleSingIn() );
     }
 
