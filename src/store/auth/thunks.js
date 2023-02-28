@@ -1,5 +1,5 @@
 import { singWithGoogle } from "../../firebase/providers";
-import { checkingCredentials } from "./"
+import { checkingCredentials, login, logout } from "./"
 
 export const checkingAuthentication = ( email, password ) => {
     return async( dispatch ) => {
@@ -13,6 +13,9 @@ export const startGoogleSingIn = () => {
 
         /* Se llama la función de Firebase para la autenticación con Google */
         const result = await singWithGoogle()
-        console.log(result)
+        
+        if( !result.ok ) return dispatch( logout( result.errorMessage ) );
+
+        dispatch( login( result ) )
     }
 }
