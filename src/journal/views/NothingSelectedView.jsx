@@ -6,6 +6,7 @@ export const NothingSelectedView = () => {
         <>
             <Grid alignItems="center"
                   direction="column"
+                  className='animate__animated animate__fadeIn animate__faster'
                   container 
                   justifyContent="center"
                   spacing={ 0 }

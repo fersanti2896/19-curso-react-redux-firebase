@@ -43,7 +43,8 @@ export const LoginPage = () => {
     return (
         <>
             <AuthLayout title='Iniciar Sesión'>
-                <form onSubmit={ onSubmit }>
+                <form className='animate__animated animate__fadeIn animate__faster'
+                      onSubmit={ onSubmit }>
                     <Grid container>
                         <Grid item sx={{ mb: 2 }} xs={ 12 } >
                             <TextField  error={ !!emailValid && formSubmitted }
