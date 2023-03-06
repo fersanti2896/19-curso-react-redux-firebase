@@ -1,37 +1,44 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { Google } from '@mui/icons-material';
-import { Button, Grid, Link, TextField, Typography } from '@mui/material';
+import { Alert, Button, Grid, Link, TextField, Typography } from '@mui/material';
 import { AuthLayout } from '../layout/AuthLayout';
 import { useForm } from '../../hooks';
-import { checkingAuthentication, startGoogleSingIn } from '../../store/auth';
+import { startGoogleSingIn, startLoginEmailPassword } from '../../store/auth';
+
+const fromData = {
+    email: '',
+    password: ''
+}
+
+const formValidations = {
+    email: [ ( value ) => value.includes('@'), 'El correo debe tener un @.'],
+    password: [ ( value ) => value.length >= 6, 'La contraseña debe tener más de 6 caracteres.']
+}
 
 export const LoginPage = () => {
-    const { status } = useSelector( state => state.auth );
     const dispatch = useDispatch();
-
-    const { email, password, onInputChange } = useForm({
-        email: '',
-        password: ''
-    });  
+    const { status, errorMessage } = useSelector( state => state.auth );
+    const [ formSubmitted, setFormSubmitted ] = useState( false );
+    
+    const { formState, email, password, onInputChange,
+            isFormValid,  emailValid, passwordValid } = useForm( fromData, formValidations );  
     
     const isAuthenticating = useMemo(() => status === 'checking', [ status ]);
 
     const onSubmit = ( event ) => {
         event.preventDefault();
+        setFormSubmitted( true );
 
-        dispatch( checkingAuthentication() );
+        if( !isFormValid ) return;
+
+        dispatch( startLoginEmailPassword( formState ) );
     }
 
     const onGoogleSingIn = () => {
         dispatch( startGoogleSingIn() );
-    }
-
-    useEffect(() => {
-        dispatch( checkingAuthentication() )
-    }, [])
-    
+    }   
 
     return (
         <>
@@ -39,7 +46,9 @@ export const LoginPage = () => {
                 <form onSubmit={ onSubmit }>
                     <Grid container>
                         <Grid item sx={{ mb: 2 }} xs={ 12 } >
-                            <TextField  name="email"
+                            <TextField  error={ !!emailValid && formSubmitted }
+                                        helperText={ emailValid }
+                                        name="email"
                                         placeholder='correo@google.com' 
                                         onChange={ onInputChange }
                                         type='email'
@@ -48,7 +57,9 @@ export const LoginPage = () => {
                         </Grid>
 
                         <Grid item sx={{ mb: 2 }} xs={ 12 }>
-                            <TextField  name='password' 
+                            <TextField  error={ !!passwordValid && formSubmitted }
+                                        helperText={ passwordValid }
+                                        name='password' 
                                         placeholder='Contraseña'
                                         onChange={ onInputChange } 
                                         type='password'
@@ -57,6 +68,10 @@ export const LoginPage = () => {
                         </Grid>
 
                         <Grid container spacing={ 2 } sx={{ mb: 2 }}>
+                            <Grid display={ !!errorMessage ? '' : 'none' } item xs={ 12 }>
+                                <Alert severity='error'>{ errorMessage }</Alert>
+                            </Grid>
+
                             <Grid item xs={ 12 } sm={ 6 }>
                                 <Button disabled={ isAuthenticating }
                                         fullWidth
@@ -66,7 +81,7 @@ export const LoginPage = () => {
                                 </Button>
                             </Grid>
 
-                            <Grid item xs={ 12 } sm={ 6 }>
+                            <Grid item xs={ 12 } sm={ 6 }>      
                                 <Button disabled={ isAuthenticating }
                                         fullWidth 
                                         onClick={ onGoogleSingIn }

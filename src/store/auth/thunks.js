@@ -1,4 +1,4 @@
-import { registerUserWithEmail, singWithGoogle } from "../../firebase/providers";
+import { loginWithEmailPassword, registerUserWithEmail, singWithGoogle } from "../../firebase/providers";
 import { checkingCredentials, login, logout } from "./"
 
 export const checkingAuthentication = ( email, password ) => {
@@ -25,8 +25,22 @@ export const startCreateUserWithPassword = ({ email, password, displayName }) =>
         dispatch( checkingCredentials() );
 
         /* Se llama la función de Firebase para la autenticación por JournalApp */
-        const resp = await registerUserWithEmail({ email, password, displayName });
+        const { ok, uid, photoURL, errorMessage } = await registerUserWithEmail({ email, password, displayName });
+
+        if( !ok ) return dispatch(logout({ errorMessage }))
+
+        dispatch( login({ uid, displayName, email, photoURL }) );
+    }
+}
+
+export const startLoginEmailPassword = ({ email, password }) => {
+    return async( dispatch ) => {
+        dispatch( checkingCredentials() );
+
+        const { ok, uid, displayName, photoURL, errorMessage } = await loginWithEmailPassword({ email, password });
         
-        console.log(resp);
+        if( !ok ) return dispatch(logout({ errorMessage }))
+
+        dispatch( login({ uid, displayName, email, photoURL }) );
     }
 }
